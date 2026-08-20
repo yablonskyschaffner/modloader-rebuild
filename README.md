@@ -1,0 +1,60 @@
+# San Andreas Mod Loader
+
+San Andreas Mod Loader is an ASI Plugin for Rockstar's Grand Theft Auto San Andreas that adds an extremely user-friendly and easy way to install and uninstall your modifications, without even messing around anything in your game installation.
+
+### Introduction
+
+Modifications are very popular in the Grand Theft Auto community, specially in Grand Theft Auto San Andreas, but everything is just too difficult to install since modding is not officially supported. People gets scared of how hard it is to install modifications (well, hyperbole makes marketing better).
+
+This modification aims to provide a extremely simple way to install modifications as seen in games with official modding support, you just place the modification in the modloader folder and look, it is installed! Easier than that is impossible. Uninstalling is that simple too, just remove the modification from the modloader folder.
+
+A important note is that modloader **DO NOT** touch **ANY** file from your game installation, so no risks.
+
+It may be very helpful for people with two or more game installations for different kind of modifications (e.g. one install clean, one install to play multiplayer, one install for mods, one install for a total conversion...).
+
+It's certainlly is very helpful for developers too, you don't have to be messing with .img files, rebuilding them everytime. Some installable modifications in modloader permit an reloading without closing the game!
+
+This is a open source project, so, feel free to contribute, report and fix bugs...
+
+
+### Compiling
+
+If you are building from the source code, it is very simple to compile. You'll need the following:
+
++ [CMake] (http://www.cmake.org/) 3.16 or greater
++ A C++17 capable compiler:
+  + [MinGW-w64](http://mingw-w64.sourceforge.net/download.php) *(32 bits, SJLJ exception handling is prefered)*, or
+  + Microsoft Visual Studio *(x86/Win32 toolset)*
+
+Then, in a terminal *(cmd.exe on Windows)* go into the base source directory and run the commands:
+
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+    cmake --build build --config Release
+
+On **Linux**, using MinGW for cross-compiling you might replace the first line with:
+
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../toolchain-linux-i686-w64-mingw32-toolchain.cmake
+
+Or something like that.
+
+This will build modloader, if everything went fine, there will be a folder `/bin` at the source base directory with the binaries.
+To install those binaries (and other stuff) run the commands:
+
+    cmake --install build --prefix "C:/Program Files (x86)/Rockstar Games/GTA San Andreas"
+
+...replacing the path after `--prefix=` with your game directory.
+On Linux with a `DESTDIR` staging folder, use `cmake --install build` after exporting `DESTDIR=<folder>`.
+
+Continuous integration is provided through [GitHub Actions](.github/workflows/build.yml),
+which cross-compiles the whole package with MinGW-w64 and uploads it as an artifact.
+
+Now, to understand how to use, read the user-targeted "doc/readme/readme.txt" file
+or the other document files targeted mainly for developers.
+
+### License
+
+The source code is licensed under GNU GPL v3, giving you the freedom to modify, create derivated works and more. See the LICENSE file for details.
+
+- - -
+Grand Theft Auto and all related trademarks are © Rockstar North 1997-2013.
+
