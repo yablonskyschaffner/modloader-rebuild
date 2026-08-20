@@ -1,0 +1,101 @@
+# San Andreas Mod Loader — CI build
+#
+# Produces the game-ready package (modloader.asi + std-* plugins + configs/docs)
+# using the same MinGW-w64 cross-compile flow the project documents for Linux,
+# plus an informational MSVC x86 build.
+#
+# Artifacts are stored as "modloader-windows.zip" and uploaded to the run.
+
+name: build
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Primary build: MinGW-w64 32-bit cross-compile (the project's documented path)
+  # ---------------------------------------------------------------------------
+  mingw-w64:
+    name: MinGW-w64 (i686) Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install MinGW-w64 toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gcc-mingw-w64-i686 \
+            g++-mingw-w64-i686 \
+            binutils-mingw-w64-i686 \
+            cmake \
+            ninja-build \
+            zip
+
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+            -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="${GITHUB_WORKSPACE}/toolchain-linux-i686-w64-mingw32-toolchain.cmake" \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Stage install (game-directory layout)
+        run: |
+          mkdir -p stage
+          env DESTDIR="${GITHUB_WORKSPACE}/stage" cmake --install build
+
+      - name: Strip binaries
+        run: |
+          for f in stage/modloader.asi stage/modloader/.data/plugins/*.dll; do
+            if [ -f "$f" ]; then i686-w64-mingw32-strip "$f"; fi
+          done
+
+      - name: Package
+        run: |
+          ( cd stage && zip -r -9 "../modloader-windows.zip" . )
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: modloader-windows
+          path: modloader-windows.zip
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Informational build: MSVC x86 (Win32). The codebase's naked/inline-asm backend
+  # only targets 32-bit, so this must not block the workflow if it regresses.
+  # ---------------------------------------------------------------------------
+  msvc:
+    name: MSVC (Win32) Release
+    runs-on: windows-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -A Win32 -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Stage install
+        run: cmake --install build --config Release --prefix "$env:GITHUB_WORKSPACE\stage"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: modloader-windows-msvc
+          path: stage
+          if-no-files-found: warn
