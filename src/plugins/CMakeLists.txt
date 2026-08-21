@@ -1,6 +1,7 @@
 # Standard Plugins
 # Sorted by build time, from the fastest to the slowest.
 add_subdirectory(std-movies)
+add_subdirectory(std-rdm)
 add_subdirectory(std-scm)
 add_subdirectory(std-sprites)
 add_subdirectory(std-fx)

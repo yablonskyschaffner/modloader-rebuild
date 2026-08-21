@@ -1,0 +1,41 @@
+*************************************************************************
+	Name: std-rdm --- (Standard Replaceable Disk iMage Plugin)
+	Version: Release Candidate 1
+	Author: LINK/2012 <dma_2012@hotmail.com>
+	Default Priority: 52
+*************************************************************************
+
+Description:
+	This plugin replaces whole image files, no image content gets merged.
+
+	It looks at the "models/img" folder to find out which image files the game owns.
+	Whenever a mod folder contains an .img file named as one of them, the game is made to
+	read the file from the mod folder instead of the original one.
+
+	Nothing is written to the disk, the original image files are left untouched.
+	The replacement happens by redirecting the paths the game opens.
+
+Usage:
+	Place your .img file anywhere in your mod folder, the file name is what matters.
+	For example, "modloader/mymod/gta3.img" and "modloader/mymod/models/gta3.img" both
+	replace the game "gta3.img", as long as "models/img/gta3.img" exists.
+
+	If more than one mod replaces the same image file, the standard modloader overriding
+	rule applies, that is, the last one found is the one to be used.
+
+	Image files that the game doesn't own (i.e. not present at the "models/img" folder) are
+	not touched by this plugin, they are handled by std-img as usual.
+
+	PS¹: This plugin handles image files only, a ".img" *folder* is a std-img thing and
+	     keeps being handled by it.
+
+	PS²: Because this plugin must be the handler for the image files it replaces, it's
+	     priority must be kept higher than the std-img one.
+
+	PS³: The game copies the image paths into 40 bytes long buffers, so replacement paths
+	     longer than that rely on the buffer patches std-img installs. Keep std-img
+	     installed, don't set it's priority to 0.
+
+NEEDS:
+	[*] Testing with the image files declared at the gta.dat/default.dat files
+
