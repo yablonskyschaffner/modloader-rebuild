@@ -84,12 +84,10 @@ bool CThePlugin::OnStartup()
         {
             std::string name = file.filename;
             this->gameImgs.emplace(tolower(name));
-            this->Log("Found game image file \"%s\\%s\"", szGameImgFolder, file.filename);
         }
         return true;
     });
 
-    Log("Found %d image file(s) at \"%s\"", (int)(this->gameImgs.size()), szGameImgFolder);
     return true;
 }
 
